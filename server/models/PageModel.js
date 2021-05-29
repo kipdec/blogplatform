@@ -3,14 +3,13 @@ const path = require('path');
 
 class PageModel {
   constructor(pageTemplate){
-    this.location = pageTemplate.location;
     this.baseURL = pageTemplate.baseURL;
     this.boilerplateTemplate = pageTemplate.boilerplateTemplate;
     this.sitename = pageTemplate.sitename;
     this.titlebarTemplate = pageTemplate.titlebarTemplate;
     this.navbarTemplate = pageTemplate.navbarTemplate; 
+    this.contentTemplate = pageTemplate.contentTemplate;
     (pageTemplate.navItems) ? this.navItems = pageTemplate.navItems : this.navItems = [];
-    console.log(this)
   }
 
   addNavItem = ({displayName, id, location}) => {
@@ -20,13 +19,31 @@ class PageModel {
   selectNavItem = (id) => {
     this.navItems.filter(n => n.id == id)[0].isSelected = true;
   }
+
+  addPageContent = (pageContent) => {
+    this.pageContent = pageContent;
+  }
+  
+  setPageTitle = (pageTitle) => {
+    this.pageTitle = pageTitle;
+  }
+
+  setLocation = (location) => {
+    this.location = location;
+  }
   
   async generateOutput(){
-    var output = this.boilerplateTemplate;
-    if(this.titlebarTemplate) output = output.replace('{TITLEBAR}', this.titlebarTemplate);
-    if(this.sitename) output = output.replaceAll('{SITENAME}', this.sitename);
-    if(this.navbarTemplate) output = output.replace('{NAVBAR}', this.navbarTemplate);
+    var output = this.boilerplateTemplate
+      .replace('{TITLEBAR}', this.titlebarTemplate)
+      .replaceAll('{SITENAME}', this.sitename)
+      .replace('{NAVBAR}', this.navbarTemplate)
+      .replace('{CONTENT}', this.contentTemplate);
+    output = output.replaceAll('{PAGETITLE}', this.pageTitle);
+
+    
     output = output.replace('{NAVITEMS}', await generateNavItemsHTML(this.navItems, this.baseURL));
+
+    output = output.replace('{PAGECONTENT}', this.pageContent);
 
 
 
@@ -34,7 +51,6 @@ class PageModel {
   }
 
   async writeOutput(){
-    console.log(__dirname);
     const outputFile = path.join(__baseDir, 'output', `${this.location}.html`);
     await writeOutputFile(outputFile, await this.generateOutput());
   }
@@ -46,7 +62,6 @@ const generateNavItemsHTML = async(navItems, baseURL) => {
     navItemList.push(await generateNavItemHTML(navItems[i], baseURL));
   }
   navItemsString = navItemList.join('\n');
-  console.log({navItemsString});
   return navItemsString;
 }
 const generateNavItemHTML = async (navItem, baseURL) => {
@@ -57,7 +72,6 @@ const generateNavItemHTML = async (navItem, baseURL) => {
     .replace('{DISPLAYNAME}', navItem.displayName)
     .replace('{SELECTED}', (navItem.isSelected) ? ' selected' : '');
   
-  console.log({componentTemplate});
 
   return componentTemplate;
 }
