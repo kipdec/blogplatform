@@ -3,8 +3,12 @@ const fs = require('fs').promises;
 
 const getComponent = async (name) => {
   var componentPath = path.join(__baseDir, 'components', `${name}.html`);
-  console.log({componentPath});
   return fileLoader(componentPath);
+}
+
+const getTemplate = async (name) => {
+  var templatePath = path.join(__baseDir, 'templates', `${name}.html`);
+  return fileLoader(templatePath);
 }
 
 const fileLoader = async (filepath) => {
@@ -18,6 +22,7 @@ const writeOutputFile = async (outputFilename, content) => {
 
 module.exports = {
   getComponent,
+  getTemplate,
   fileLoader,
   writeOutputFile
 }

@@ -2,7 +2,7 @@
 global.__baseDir = __dirname;
 const fs = require('fs').promises;
 const PageModel = require('./models/PageModel');
-const { fileLoader, writeOutputFile } = require('./utils');
+const { fileLoader, writeOutputFile, getTemplate } = require('./utils');
 // Generates the html boilerplate or skeleton of the doc
 
 const outputCSS = async() => {
@@ -12,15 +12,13 @@ const outputCSS = async() => {
 
 const main = async () => {
   const sitename = "Kip's Watch Blog";
-  var boilerplateTemplate = await fileLoader('./templates/boilerplate.html');
-  var titlebarTemplate = await fileLoader('./templates/titlebar.html');
   var homepage = new PageModel({
     location: 'index',
     baseURL: 'http://localhost:5000',
-    boilerplateTemplate: boilerplateTemplate,
+    boilerplateTemplate: await getTemplate('boilerplate'),
     sitename: sitename,
-    titlebarTemplate: titlebarTemplate,
-    navbarTemplate: await fileLoader('./templates/navbar.html')
+    titlebarTemplate: await getTemplate('titlebar'),
+    navbarTemplate: await getTemplate('navbar')
   });
 
   homepage.addNavItem({
